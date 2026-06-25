@@ -9,6 +9,7 @@
 #include "../units.h"
 #include "../character.h"
 #include "../will/prosecution.h"
+#include "../will/jump.h"
 
 typedef Character<sdl::Renderer, sdl::EventPump::EventType> CharacterType; // character is implemented through sdl - need to have renderer and event
 
@@ -62,6 +63,7 @@ public:
             //HMove
             //HMove(HDirection.,)
             HMove(HDirection::left, 0, units::Speed::MetresPerSecond(2), *ice);
+            Jump<CharacterType, CharacterType::SceneType, VMove<CharacterType>> jump1(*ice, units::Distance::Metres(10.0), units::Speed::MetresPerSecond(4.0), 0);
             // change it into Pursue(xx,x,xx); (keep the reference)
             // Prosecution proc(xxx,xx,x,x,x,x);
 
