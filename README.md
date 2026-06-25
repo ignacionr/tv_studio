@@ -33,26 +33,47 @@ Below is a visualization of the architecture:
 * **`Plane`** ([plane.h](src/plane.h)): Represents a depth layer (Z-index) containing a background image and list of renderable entities.
 * **`Character`** ([character.h](src/character.h)): Any renderable entity placed on a plane. Can contain a list of custom behavior lambdas (`_update`) combined using `operator+=` and an event listener callback (`_react`).
 * **`Sprite`** ([sprite.h](src/sprite.h)): Binds to a `Character` to slice sprite sheets, maintain animation states (e.g. walk left/right), and perform rendering.
-* **`Camera`** ([camera.h](src/camera.h)): Translates the `Scene` coordinates to the screen, updating the viewport scroll offsets.
+* **`Camera`** ([camera.h](src/camera.h)): Translates the `Scene` coordinates to the screen, updating the viewport scroll offsets. Includes support for real-time coordinate debug overlay rendering and frame-capturing.
 
 ### 3. Steering & Behaviors
-* **`HMove`** ([move.h](src/move.h)): A horizontal movement behavior that increments/decrements a character's position over time using simulation metrics (`units::Speed`).
-* **`Prosecution`** ([will/prosecution.h](src/will/prosecution.h)): A pursuit AI behavior that controls a character to track and steer towards a target coordinates.
+* **`HMove`** ([move.h](src/move.h)): A horizontal movement behavior that increments/decrements a character's horizontal (`x`) position over time using simulation metrics (`units::Speed`).
+* **`VMove`** ([move.h](src/move.h)): A vertical movement behavior that increments/decrements a character's vertical (`y`) position over time using simulation metrics (`units::Speed`).
+* **`Prosecution`** ([will/prosecution.h](src/will/prosecution.h)): A pursuit AI steering behavior that controls a character to track and steer towards target coordinate endpoints.
+* **`Jump`** ([will/jump.h](src/will/jump.h)): A compound jumping behavior that manages state transitions between ascending and descending phases using vertical movement updates (`VMove`).
 
 ---
 
-## 🎬 Current Scene Implementation (`ForestScene`)
+## 🎬 Demo Scene Implementations
 
-By default, the simulation executes `ForestScene` (defined in [forest.h](src/scenes/forest.h)), which implements:
-1. **Parallax Background layers**: A multi-layered scenery consisting of background planes:
-   - Plane 4: `rsrc/backgrounds/bg.png`
-   - Plane 3: `rsrc/backgrounds/far_trees.png`
-   - Plane 2: `rsrc/backgrounds/mid_trees.png`
-   - Plane 0: `rsrc/backgrounds/close_trees.png`
-2. **Steering AI Interaction**:
-   - An static **Ice block** (`ice`) is placed on Plane 1.
-   - A **Kanako character** (`girl`) is placed on Plane 2.
-   - The `girl` is assigned a `Prosecution` steering script targeting the `ice` block. Every time the logic update ticks, it cancels her active move, registers a new `HMove` towards the ice block, and selects the matching walking animation (e.g., `walkLeft` or `walkRight`).
+The framework provides two primary educational scenes illustrating its capabilities:
+
+### 1. Forest Scene (`ForestScene` defined in [forest.h](src/scenes/forest.h))
+*Executed by default, this scene demonstrates:*
+* **Parallax Background Layers**: Multi-layered scenery comprising background planes that scroll relative to the focus plane depth:
+  - Plane 4: `rsrc/backgrounds/bg.png`
+  - Plane 3: `rsrc/backgrounds/far_trees.png`
+  - Plane 2: `rsrc/backgrounds/mid_trees.png` (focus plane)
+  - Plane 0: `rsrc/backgrounds/close_trees.png`
+* **Steering AI Interaction**:
+  - A static **Ice block** (`ice`) is placed on Plane 1.
+  - A **Kanako character** (`girl`) is placed on Plane 2.
+  - The `girl` runs a `Prosecution` script targeting the `ice` block. As she walks, the animation ticks only during movement, resetting to an idle state when stationary.
+
+### 2. Ice Scene (`IceScene` defined in [ice.h](src/scenes/ice.h))
+*An alternate demo scene showcasing:*
+* A custom background landscape (`rsrc/IMG_6110.jpg`).
+* A static **Ice block** on Plane 1 and a **Cat character** on Plane 2.
+* The camera set to follow the **Cat** as it traverses the scene.
+
+---
+
+## ⚙️ Command-Line Arguments
+
+The application accepts command-line arguments to toggle diagnostic information or capture simulation photograms:
+
+* **Capture Feature (`-capture <start>-<end>@<fps>`)**: Captures simulation frames within a specified start/end millisecond range at the target framerate, saving them as sequentially-numbered lossless PNG files (`frame_0000.png` etc.).
+  * *Example*: `./build/tv_studio -capture 2800-5000@24` will capture frames from 2.8s to 5.0s at 24 frames per second.
+* **Camera Overlay (`-overlay` or any other argument)**: Enforces rendering of a real-time text overlay in the upper-left corner of the window displaying camera coordinate state variables (Z depth, X coordinate, and Zoom).
 
 ---
 
