@@ -54,17 +54,19 @@ struct Camera
             render_position_overlay();
         }
 
-        // Capture frame if capture is enabled and current time falls within target window
+        // Capture frame if capture is enabled and current time falls within target window.
+        // We declare local tracking variables as 'const' with brace-initializers '{}'
+        // to prevent accidental mutability and show students clean C++ practices.
         if (capture_enabled_ && scene_)
         {
-            uint32_t current_time = scene_->age();
+            const uint32_t current_time{scene_->age()};
             if (current_time >= capture_start_ms_ && current_time <= capture_end_ms_)
             {
-                uint32_t target_time = capture_start_ms_ + next_capture_index_ * 1000 / capture_fps_;
+                const uint32_t target_time{capture_start_ms_ + next_capture_index_ * 1000 / capture_fps_};
                 if (current_time >= target_time)
                 {
                     std::ostringstream ss;
-                    ss << "frame_" << std::setfill('0') << std::setw(4) << next_capture_index_ << ".bmp";
+                    ss << "frame_" << std::setfill('0') << std::setw(4) << next_capture_index_ << ".png";
                     try
                     {
                         renderer_->Capture(ss.str());

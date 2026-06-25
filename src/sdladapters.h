@@ -381,25 +381,31 @@ namespace sdl
 
         auto &Capture(std::string const &filename)
         {
-            int w, h;
+            int w{0};
+            int h{0};
             GetDimensions(&w, &h);
 
-            // Create a temporary 32-bit RGBA surface to hold the pixel buffer
-            SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_RGBA32);
+            // Create a temporary 32-bit RGBA surface to hold the pixel buffer.
+            // C-style raw pointer is used here because SDL API functions expect a raw pointer.
+            // We mark it 'const' to prevent reassigning the pointer, and ensure we manually
+            // clean it up using SDL_FreeSurface() before returning or throwing an error,
+            // teaching students about manual lifetime management of resources that aren't wrapped in RAII yet.
+            SDL_Surface *const surface{SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_RGBA32)};
             if (!surface)
             {
                 throw Error();
             }
 
-            // Read the pixels directly from the renderer's back buffer
+            // Read the pixels directly from the renderer's back buffer.
             if (0 != SDL_RenderReadPixels(*this, nullptr, SDL_PIXELFORMAT_RGBA32, surface->pixels, surface->pitch))
             {
                 SDL_FreeSurface(surface);
                 throw Error();
             }
 
-            // Save the surface as a BMP file
-            if (0 != SDL_SaveBMP(surface, filename.c_str()))
+            // Save the surface as a PNG file using SDL_image's IMG_SavePNG.
+            // This compresses the raw pixel buffer into a portable PNG image.
+            if (0 != IMG_SavePNG(surface, filename.c_str()))
             {
                 SDL_FreeSurface(surface);
                 throw Error();
