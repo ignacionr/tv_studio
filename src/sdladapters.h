@@ -379,6 +379,36 @@ namespace sdl
             return *this;
         }
 
+        auto &Capture(std::string const &filename)
+        {
+            int w, h;
+            GetDimensions(&w, &h);
+
+            // Create a temporary 32-bit RGBA surface to hold the pixel buffer
+            SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_RGBA32);
+            if (!surface)
+            {
+                throw Error();
+            }
+
+            // Read the pixels directly from the renderer's back buffer
+            if (0 != SDL_RenderReadPixels(*this, nullptr, SDL_PIXELFORMAT_RGBA32, surface->pixels, surface->pitch))
+            {
+                SDL_FreeSurface(surface);
+                throw Error();
+            }
+
+            // Save the surface as a BMP file
+            if (0 != SDL_SaveBMP(surface, filename.c_str()))
+            {
+                SDL_FreeSurface(surface);
+                throw Error();
+            }
+
+            SDL_FreeSurface(surface);
+            return *this;
+        }
+
         auto &SetDrawColor(const Color &color)
         {
             if (0 != SDL_SetRenderDrawColor(*this, color.red(), color.green(), color.blue(), color.opacity()))

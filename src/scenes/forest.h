@@ -16,7 +16,7 @@ typedef Character<sdl::Renderer, sdl::EventPump::EventType> CharacterType; // ch
 class ForestScene
 {
 public:
-    static void run(bool show_camera_pos = false) noexcept
+    static void run(bool show_camera_pos = false, bool has_capture = false, uint32_t capture_start = 0, uint32_t capture_end = 0, uint32_t capture_fps = 24) noexcept
     {
         try
         {
@@ -29,6 +29,10 @@ public:
             scene1.at(0)->background(std::string("rsrc/backgrounds/close_trees.png"));
             auto renderer{win.renderer()};                                                // uniform initialization systax
             Camera<CharacterType::RendererType, CharacterType::SceneType> cam1(renderer, show_camera_pos); // create a camera of a render type and scene type- character type is like namespace
+            if (has_capture)
+            {
+                cam1.configure_capture(capture_start, capture_end, capture_fps);
+            }
             cam1.scene(&scene1);                                                          // add scene to the camera - cam.scene accepts pointer to the address of scene1
 
             // template instantiation: take the name of the template (such as "std::vector")

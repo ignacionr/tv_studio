@@ -2,6 +2,8 @@
 #include <memory>
 #include <algorithm>
 #include <string>
+#include <iomanip>
+#include <sstream>
 #include "units.h"
 #include "sdladapters.h"
 
@@ -25,6 +27,14 @@ struct Camera
         target_character_ = character;
     }
 
+    void configure_capture(uint32_t start_ms, uint32_t end_ms, uint32_t fps)
+    {
+        capture_start_ms_ = start_ms;
+        capture_end_ms_ = end_ms;
+        capture_fps_ = fps;
+        capture_enabled_ = true;
+    }
+
     void render()
     {
         renderer_->Clear(); // clear the render
@@ -42,6 +52,30 @@ struct Camera
         if (show_overlay_)
         {
             render_position_overlay();
+        }
+
+        // Capture frame if capture is enabled and current time falls within target window
+        if (capture_enabled_ && scene_)
+        {
+            uint32_t current_time = scene_->age();
+            if (current_time >= capture_start_ms_ && current_time <= capture_end_ms_)
+            {
+                uint32_t target_time = capture_start_ms_ + next_capture_index_ * 1000 / capture_fps_;
+                if (current_time >= target_time)
+                {
+                    std::ostringstream ss;
+                    ss << "frame_" << std::setfill('0') << std::setw(4) << next_capture_index_ << ".bmp";
+                    try
+                    {
+                        renderer_->Capture(ss.str());
+                        next_capture_index_++;
+                    }
+                    catch (...)
+                    {
+                        // Ignore capture errors
+                    }
+                }
+            }
         }
 
         renderer_->Present(); // SDL requirement
@@ -183,6 +217,11 @@ private:
     TScene const *scene_;
     typename TScene::CharacterType const *target_character_;
     bool show_overlay_;
+    bool capture_enabled_{false};
+    uint32_t capture_start_ms_{0};
+    uint32_t capture_end_ms_{0};
+    uint32_t capture_fps_{24};
+    uint32_t next_capture_index_{0};
     
     // Educational comment: We use std::unique_ptr to manage the font resource lifetime.
     // std::unique_ptr enforces single ownership and guarantees that the TTF_Font resource
