@@ -34,20 +34,20 @@ namespace sdl
     {
     public:
         Color(unsigned char red, unsigned char green, unsigned char blue, unsigned char opacity = SDL_ALPHA_OPAQUE)
-            : _value{.r = red, .g = green, .b = blue, .a = opacity}
+            : value_{.r = red, .g = green, .b = blue, .a = opacity}
         {
         }
-        Color(SDL_Color const &src) : _value{src} { ; }
+        Color(SDL_Color const &src) : value_{src} { ; }
 
-        auto red() const { return _value.r; }
-        auto green() const { return _value.g; }
-        auto blue() const { return _value.g; }
-        auto opacity() const { return _value.a; }
+        auto red() const { return value_.r; }
+        auto green() const { return value_.g; }
+        auto blue() const { return value_.g; }
+        auto opacity() const { return value_.a; }
 
-        operator SDL_Color() const { return _value; }
+        operator SDL_Color() const { return value_; }
 
     private:
-        SDL_Color _value;
+        SDL_Color value_;
     };
 
     class UsesSDL
@@ -82,7 +82,7 @@ namespace sdl
             {
                 if (code)
                 {
-                    if (!std::any_of(_handlers.begin(), _handlers.end(), [&ev](auto const &kv) {
+                    if (!std::any_of(handlers_.begin(), handlers_.end(), [&ev](auto const &kv) {
                             return kv.second(&ev);
                         }))
                     {
@@ -107,18 +107,18 @@ namespace sdl
         template <typename T>
         auto &operator+=(T *o)
         {
-            _handlers[o] = std::bind(&T::handle_event, o, std::placeholders::_1);
+            handlers_[o] = std::bind(&T::handle_event, o, std::placeholders::_1);
             return *this;
         }
 
         auto &operator-=(void *o)
         {
-            _handlers.erase(o);
+            handlers_.erase(o);
             return *this;
         }
 
     private:
-        std::map<void *, HandlerType> _handlers;
+        std::map<void *, HandlerType> handlers_;
     };
 #pragma endregion
 
@@ -126,29 +126,29 @@ namespace sdl
     class Surface
     {
     public:
-        Surface(SDL_Surface *ptr) : _surface{ptr}
+        Surface(SDL_Surface *ptr) : surface_{ptr}
         {
         }
         Surface(const char *filename)
         {
-            _surface = IMG_Load(filename);
-            if (!_surface)
+            surface_ = IMG_Load(filename);
+            if (!surface_)
             {
                 throw Error();
             }
         }
         ~Surface()
         {
-            if (_surface)
+            if (surface_)
             {
-                SDL_FreeSurface(_surface);
+                SDL_FreeSurface(surface_);
             }
         }
-        operator SDL_Surface *() const { return _surface; }
-        auto Dimensions() const { return SDL_Rect{.w = _surface->w, .h = _surface->h}; }
+        operator SDL_Surface *() const { return surface_; }
+        auto Dimensions() const { return SDL_Rect{.w = surface_->w, .h = surface_->h}; }
 
     private:
-        SDL_Surface *_surface;
+        SDL_Surface *surface_;
     };
 #pragma endregion
 
@@ -160,29 +160,29 @@ namespace sdl
     public:
         Texture(SDL_Renderer *renderer, Surface const &src)
         {
-            _texture = SDL_CreateTextureFromSurface(renderer, src);
-            if (!_texture)
+            texture_ = SDL_CreateTextureFromSurface(renderer, src);
+            if (!texture_)
             {
                 throw Error();
             }
         }
         ~Texture()
         {
-            if (_texture)
+            if (texture_)
             {
-                ::SDL_DestroyTexture(_texture);
+                ::SDL_DestroyTexture(texture_);
             }
         }
-        operator SDL_Texture *() const { return _texture; }
+        operator SDL_Texture *() const { return texture_; }
 
         auto &SetColorMod(Uint8 r, Uint8 g, Uint8 b)
         {
-            SDL_SetTextureColorMod(_texture, r, g, b);
+            SDL_SetTextureColorMod(texture_, r, g, b);
             return *this;
         }
 
     private:
-        SDL_Texture *_texture;
+        SDL_Texture *texture_;
     };
 
 #pragma endregion
@@ -209,27 +209,27 @@ namespace sdl
     public:
         Font(const char *filename, int pointsize = 120)
         {
-            _font = TTF_OpenFont(filename, pointsize);
-            if (NULL == _font)
+            font_ = TTF_OpenFont(filename, pointsize);
+            if (NULL == font_)
             {
                 throw FontError();
             }
         }
         ~Font()
         {
-            if (_font)
+            if (font_)
             {
-                TTF_CloseFont(_font);
+                TTF_CloseFont(font_);
             }
         }
 
         auto RenderText_Solid(std::string_view const &text, Color const &color) const
         {
-            return std::make_shared<Surface>(TTF_RenderUTF8_Solid(const_cast<TTF_Font *>(_font), std::string(text).c_str(), color));
+            return std::make_shared<Surface>(TTF_RenderUTF8_Solid(const_cast<TTF_Font *>(font_), std::string(text).c_str(), color));
         }
 
     private:
-        TTF_Font *_font;
+        TTF_Font *font_;
     };
 #pragma endregion
 #pragma region Window
@@ -238,14 +238,14 @@ namespace sdl
     {
     public:
         Window(std::string_view const &title, int width, int height, EventPump &pump)
-            : _pump{pump}
+            : pump_{pump}
         {
-            _window = SDL_CreateWindow(
+            window_ = SDL_CreateWindow(
                 std::string(title).c_str(),
                 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                 width, height,
                 SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-            if (!_window)
+            if (!window_)
             {
                 throw Error();
             }
@@ -253,30 +253,30 @@ namespace sdl
         }
         ~Window()
         {
-            if (_window)
+            if (window_)
             {
-                SDL_DestroyWindow(_window);
+                SDL_DestroyWindow(window_);
             }
-            _pump -= this;
+            pump_ -= this;
         }
 
         std::shared_ptr<Renderer> renderer()
         {
-            if (!_renderer)
+            if (!renderer_)
             {
-                _renderer = std::make_shared<Renderer>(*this);
+                renderer_ = std::make_shared<Renderer>(*this);
             }
-            return _renderer;
+            return renderer_;
         }
 
         void AssumeClosed()
         {
-            _window = nullptr;
+            window_ = nullptr;
         }
 
         auto WindowID() const
         {
-            return SDL_GetWindowID(_window);
+            return SDL_GetWindowID(window_);
         }
 
         bool handle_event(SDL_Event *ev)
@@ -295,13 +295,13 @@ namespace sdl
 
         operator SDL_Window *()
         {
-            return _window;
+            return window_;
         }
 
     private:
-        SDL_Window *_window;
-        std::shared_ptr<Renderer> _renderer;
-        EventPump &_pump;
+        SDL_Window *window_;
+        std::shared_ptr<Renderer> renderer_;
+        EventPump &pump_;
     };
 #pragma endregion
 #pragma region Cursor
@@ -309,35 +309,35 @@ namespace sdl
     {
     public:
         Cursor(SDL_SystemCursor c)
-            : _should_free{true}
+            : should_free_{true}
         {
-            _cursor = ::SDL_CreateSystemCursor(c);
-            if (!_cursor)
+            cursor_ = ::SDL_CreateSystemCursor(c);
+            if (!cursor_)
                 throw Error();
         }
         Cursor()
         {
-            _cursor = ::SDL_GetCursor();
-            if (!_cursor)
+            cursor_ = ::SDL_GetCursor();
+            if (!cursor_)
                 throw Error();
         }
         ~Cursor()
         {
-            if (_cursor && _should_free)
+            if (cursor_ && should_free_)
             {
-                ::SDL_FreeCursor(_cursor);
+                ::SDL_FreeCursor(cursor_);
             }
         }
 
         auto &Set()
         {
-            ::SDL_SetCursor(_cursor);
+            ::SDL_SetCursor(cursor_);
             return *this;
         }
 
     private:
-        SDL_Cursor *_cursor;
-        bool _should_free{false};
+        SDL_Cursor *cursor_;
+        bool should_free_{false};
     };
 #pragma endregion
 #pragma region Renderer
@@ -354,24 +354,24 @@ namespace sdl
 
         Renderer(SDL_Window *window)
         {
-            _renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-            if (!_renderer)
+            renderer_ = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+            if (!renderer_)
             {
                 throw Error();
             }
             int w, h;
             SDL_GetWindowSize(window, &w, &h);
-            SDL_RenderSetLogicalSize(_renderer, w, h);
+            SDL_RenderSetLogicalSize(renderer_, w, h);
         }
         ~Renderer()
         {
-            if (_renderer)
+            if (renderer_)
             {
-                ::SDL_DestroyRenderer(_renderer);
+                ::SDL_DestroyRenderer(renderer_);
             }
         }
 
-        operator SDL_Renderer *() const { return _renderer; }
+        operator SDL_Renderer *() const { return renderer_; }
 
         auto &GetDimensions(int *w, int *h) const
         {
@@ -459,7 +459,7 @@ namespace sdl
         }
 
     private:
-        SDL_Renderer *_renderer;
+        SDL_Renderer *renderer_;
     };
 #pragma endregion
 

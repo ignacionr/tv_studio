@@ -50,11 +50,11 @@ public:
             //     // automatically close the file
             // }
 
-            // ice->_position; // the arrow operator of a smart pointer, will help by resolving the ptr into raw ptr
-            // ice.get()->_position; // this is the equivalent of the previous
+            // ice->position_; // the arrow operator of a smart pointer, will help by resolving the ptr into raw ptr
+            // ice.get()->position_; // this is the equivalent of the previous
 
             // auto p = ice.get(); // return the raw pointer to p from shared ptr ice
-            ice->_position = {x, 210 - 80, 80, 80};
+            ice->position_ = {x, 210 - 80, 80, 80};
             Sprite sprite_ice(*renderer, "rsrc/ice-block.png"); // passing pointer of the sharedpointer - *renderer (get object from the address)
             sprite_ice.addAnimation();
             sprite_ice.setupCharacter(*ice);                    // we have the address. we passing the object
@@ -74,14 +74,14 @@ public:
             scene1.at(1)->push_back(ice); // why not *ice? - lifetime of the character is not tied to the lifetime of the scene. since we don't have garbage collection in cpp we use shared ptr
 
             auto girl = std::make_shared<CharacterType>();
-            girl->_position = {0, 210 - 64, 32, 64};
+            girl->position_ = {0, 210 - 64, 32, 64};
             Sprite sprite_girl(*renderer, "rsrc/sprites/characters/spr_kanako_walk_.png", 1, 4); // what is 180? - speed of the animation
             sprite_girl.addAnimation("walkRight",0, 3, 180);
             sprite_girl.addAnimation("walkLeft",0, 3, 180, SDL_FLIP_HORIZONTAL);
             sprite_girl.chooseAnimation("walkRight");
             sprite_girl.setupCharacter(*girl);
 
-            // HMove(ice->_position, 0, units::Speed::MetresPerSecond(10.0), *girl); // passing the function to get the target rectangle (at every update)
+            // HMove(ice->position_, 0, units::Speed::MetresPerSecond(10.0), *girl); // passing the function to get the target rectangle (at every update)
             Prosecution<CharacterType, CharacterType::SceneType, HMove<CharacterType>> prosecution(*girl, *ice, false,
             {
                 {HDirection::left, [&sprite_girl](){ sprite_girl.chooseAnimation("walkLeft");}},

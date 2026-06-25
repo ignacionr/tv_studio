@@ -22,10 +22,10 @@ This document defines the educational coding style and design guidelines utilize
 ## 🧩 3. Architectural Design Style
 * **Templates & "Duck Typing"**: Prefer template-based generic programming (parametric polymorphism) over heavy object-oriented inheritance hierarchies. Let classes verify interface expectations implicitly at compile-time.
 * **Structs vs. Classes**: Use simple `struct` structures for data-heavy structures and configurations where member variables are public by default.
-* **Class Member Initialization Lists**: Always initialize class references and constant fields within the constructor's member initializer list (e.g., `: _subject{subject}, _target{target}`).
+* **Class Member Initialization Lists**: Always initialize class references and constant fields within the constructor's member initializer list (e.g., `: subject_{subject}, target_{target}`).
 
 ---
 
 ## 🏷️ 4. Naming Conventions
-* **Private Member Variables**: Prefix all private or protected class/struct member variables with a leading underscore (e.g., `_position`, `_update`, `_react`).
+* **Private Member Variables**: Postfix all private or protected class/struct member variables with a trailing underscore (e.g., `position_`, `update_`, `react_`).
 * **Type Namespaces**: Define alias types (e.g., `typedef TEvent EventType;` or `using CharacterType = ...`) to encapsulate implementation-specific types in generic classes.

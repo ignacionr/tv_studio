@@ -61,19 +61,19 @@ struct Character
     typedef Scene<Character<TRenderer, TEvent>> SceneType; // scene is a vector of characters
     typedef std::function<bool(SceneType *)> UpdateType;   // update type is a function accepting scene and return bool
 
-    std::function<void(TRenderer *, std::function<typename TRenderer::RectType(typename TRenderer::RectType)>)> _render;
-    std::function<bool(EventType *)> _react;
-    typename TRenderer::RectType _position;
+    std::function<void(TRenderer *, std::function<typename TRenderer::RectType(typename TRenderer::RectType)>)> render_;
+    std::function<bool(EventType *)> react_;
+    typename TRenderer::RectType position_;
 
     void addUpdate(UpdateType update)
     {
-        _update += update; // combine two update
+        update_ += update; // combine two update
     }
 
     bool Update(SceneType *scene)
     {
-        if (_update)
-            return _update(scene); // update the scene and return true?
+        if (update_)
+            return update_(scene); // update the scene and return true?
         return false;
     }
 
@@ -95,5 +95,5 @@ struct Character
     }
 
 private:
-    UpdateType _update;
+    UpdateType update_;
 };

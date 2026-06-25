@@ -8,30 +8,30 @@ template <typename TRenderable>
 struct Scene
 {
     Scene(unsigned int w, unsigned int h, unsigned int z)
-        : _w(w), _h(h)
+        : w_(w), h_(h)
     {
-        _planes.reserve(z);
+        planes_.reserve(z);
         for (; z; --z)
         {
-            _planes.push_back(std::make_shared<Plane<TRenderable>>(w, h)); // assign plane to the render in reverse order
+            planes_.push_back(std::make_shared<Plane<TRenderable>>(w, h)); // assign plane to the render in reverse order
         }
-        _start = TRenderable::RendererType::GetTicks(); // get delta time?
+        start_ = TRenderable::RendererType::GetTicks(); // get delta time?
     }
 
     auto pixel_size() const // get pixel size
     {
-        return typename TRenderable::RendererType::RectType{0, 0, _w, _h};
+        return typename TRenderable::RendererType::RectType{0, 0, w_, h_};
     }
 
     auto age() const
     {
-        return TRenderable::RendererType::GetTicks() - _start;
+        return TRenderable::RendererType::GetTicks() - start_;
     }
 
     template <typename T>            // templeate for for each , it can be do any action
     void foreach_character(T action) // handle event for every character?
     {
-        for (auto &plane : _planes)
+        for (auto &plane : planes_)
         {
             for (auto &ch : *plane) // for each
             {
@@ -43,9 +43,9 @@ struct Scene
     bool handle_event(typename TRenderable::EventType *ev)
     {
         foreach_character([ev](auto &ch) { // for each react
-            if (ch->_react)                // _react ??
+            if (ch->react_)                // react_ ??
             {
-                ch->_react(ev);
+                ch->react_(ev);
             }
         });
         return true;
@@ -60,18 +60,18 @@ struct Scene
 
     auto back() const
     {
-        return _planes.back();
+        return planes_.back();
     }
 
     auto at(int idx) const
     {
-        return _planes.at(idx);
+        return planes_.at(idx);
     }
 
-    auto size() const { return _planes.size(); }
+    auto size() const { return planes_.size(); }
 
 private:
-    Uint32 _start;
-    int _w, _h;
-    std::vector<std::shared_ptr<Plane<TRenderable>>> _planes;
+    Uint32 start_;
+    int w_, h_;
+    std::vector<std::shared_ptr<Plane<TRenderable>>> planes_;
 };
