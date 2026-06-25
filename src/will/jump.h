@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include <iostream>
 #include "../move.h"
 #include "../units.h"
 
@@ -39,11 +38,6 @@ public:
         {
             return true; // Wait until start time is reached
         }
-        std::cout << "[DEBUG] UpdateJump. Age: " << currentTime 
-                  << ", State: " << static_cast<int>(state_) 
-                  << ", Y: " << subject_.position_.y 
-                  << ", Start Y: " << start_y_ 
-                  << ", Max Height Y: " << max_height_ << std::endl;
 
         if (state_ == JumpState::ascending)
         {
