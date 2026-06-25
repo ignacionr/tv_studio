@@ -62,7 +62,7 @@ public:
             //Prosecution<CharacterType, CharacterType::SceneType, HMove<CharacterType>> prosecution1(*ice, nullptr, false);
             //HMove
             //HMove(HDirection.,)
-            HMove(HDirection::left, 0, units::Speed::MetresPerSecond(2), *ice);
+            // HMove(HDirection::left, 0, units::Speed::MetresPerSecond(2), *ice);
             // change it into Pursue(xx,x,xx); (keep the reference)
             // Prosecution proc(xxx,xx,x,x,x,x);
 
