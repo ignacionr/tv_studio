@@ -16,6 +16,7 @@ This document defines the educational coding style and design guidelines utilize
 * **Lambdas over `std::bind`**: Prefer modern C++ lambda closures (`[capture](params) { body }`) over `std::bind` or placeholders.
 * **RAII & Smart Pointers**: Strictly enforce Resource Acquisition Is Initialization (RAII). Avoid naked `new` or `delete` operators; use smart pointers (`std::shared_ptr`, `std::unique_ptr`) to manage resource lifetimes safely without garbage collection.
 * **Functional Composition**: Use operator overloading (e.g., custom `operator+` and `operator+=` for `std::function`) to build clean pipelines and composite behavior updates.
+* **Strict Const Correctness**: Proactively use `const` for all local variables, arguments, and member functions that do not require modification. This is critical for teaching students about mutability, preventing accidental side-effects, and reinforcing safe code semantics.
 
 ---
 
