@@ -52,7 +52,7 @@ struct Sprite
                 // Educational comment: We compare the current position to the captured last_position to detect movement.
                 // If the character is moving (position changed), we update the animation step.
                 // If stationary, we reset the step to 0 to keep the character in their standing/idle pose.
-                bool is_moving = (character.position_.x != last_position.x || character.position_.y != last_position.y);
+                const bool is_moving = (character.position_.x != last_position.x || character.position_.y != last_position.y);
                 if (is_moving)
                 {
                     current_step_ = scene->age() / current_animation_->step_divisor_;
