@@ -49,15 +49,7 @@ struct Camera
         // camera_z_ = std::min({(-50) + (static_cast<int>(scene_->age()) / 100), -10});
         if (target_character_)
         {
-            int w, h;
-            renderer_->GetDimensions(&w, &h);
             camera_x_ = target_character_->position_.x + target_character_->position_.w / 2;
-            int scene_w = scene_->pixel_size().w;
-            if (camera_x_ < w / 2) {
-                camera_x_ = w / 2;
-            } else if (camera_x_ > scene_w - w / 2) {
-                camera_x_ = scene_w - w / 2;
-            }
         }
         else
         {
