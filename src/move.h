@@ -40,7 +40,7 @@ private:
                 {
                     return false;
                 }
-                auto step = units::Time{scene->age() - start_time} * speed; // calculate distance
+                int step = static_cast<int>(units::Time{scene->age() - start_time} * speed); // calculate distance
                 character.position_.x = from.x - step;                      // update position
                 return true;
             });
@@ -52,7 +52,7 @@ private:
                 {
                     return false;
                 }
-                auto step = units::Time{scene->age() - start_time} * speed; // calculate distance
+                int step = static_cast<int>(units::Time{scene->age() - start_time} * speed); // calculate distance
                 character.position_.x = from.x + step;                      // update position
                 return true;
             });
@@ -96,7 +96,7 @@ private:
                 {
                     return false;
                 }
-                auto step = units::Time{scene->age() - start_time} * speed;
+                int step = static_cast<int>(units::Time{scene->age() - start_time} * speed);
                 character.position_.y = from.y - step;
                 return true;
             });
@@ -108,7 +108,7 @@ private:
                 {
                     return false;
                 }
-                auto step = units::Time{scene->age() - start_time} * speed;
+                int step = static_cast<int>(units::Time{scene->age() - start_time} * speed);
                 character.position_.y = from.y + step;
                 return true;
             });
