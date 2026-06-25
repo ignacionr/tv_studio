@@ -7,6 +7,8 @@
 template <typename TRenderable>
 struct Scene
 {
+    using CharacterType = TRenderable;
+
     Scene(unsigned int w, unsigned int h, unsigned int z)
         : w_(w), h_(h)
     {

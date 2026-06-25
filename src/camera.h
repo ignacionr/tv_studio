@@ -9,13 +9,18 @@ template <typename TRenderer, typename TScene>
 struct Camera
 {
     Camera(std::shared_ptr<TRenderer> renderer) // constructor by passing render shared_ptr
-        : renderer_(renderer) { ; }
+        : renderer_(renderer), target_character_(nullptr) { ; }
 
     void scene(TScene const *scene_param) // setting up scene to the camera
     {
         scene_ = scene_param;
         plane_translations_.resize(0); // why it resize to zero? initial vector size is not zero?
         camera_y_ = scene_param->pixel_size().h / 2; 
+    }
+
+    void follow(typename TScene::CharacterType const *character) // set character to follow
+    {
+        target_character_ = character;
     }
 
     void render()
@@ -36,7 +41,22 @@ struct Camera
     void update()
     {
         // camera_z_ = std::min({(-50) + (static_cast<int>(scene_->age()) / 100), -10});
-        camera_x_ = scene_->age() / 20; // speed of the cam
+        if (target_character_)
+        {
+            int w, h;
+            renderer_->GetDimensions(&w, &h);
+            camera_x_ = target_character_->position_.x + target_character_->position_.w / 2;
+            int scene_w = scene_->pixel_size().w;
+            if (camera_x_ < w / 2) {
+                camera_x_ = w / 2;
+            } else if (camera_x_ > scene_w - w / 2) {
+                camera_x_ = scene_w - w / 2;
+            }
+        }
+        else
+        {
+            camera_x_ = 0;
+        }
         // zoom_ = scene_->age() * 0.00001 + 1.0;
         create_plane_translations();
     }
@@ -87,4 +107,5 @@ private:
     double zoom_{1.0};
     const double aperture_{40.0};
     TScene const *scene_;
+    typename TScene::CharacterType const *target_character_;
 };

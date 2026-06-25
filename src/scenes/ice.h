@@ -32,6 +32,7 @@ public:
             //  46, 53, 95
             sprite_cat.setupCharacter(*cat);
             // HMove(p->position_, 0, units::Speed::MetresPerSecond(9.0), *cat);
+            cam1.follow(cat.get());
             scene1.at(2)->push_back(cat);
 
             pump.run(

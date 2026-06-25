@@ -91,6 +91,7 @@ public:
 
             Jump<CharacterType, CharacterType::SceneType, VMove<CharacterType>> jump1(*girl, units::Distance::Metres(10.0), units::Speed::MetresPerSecond(4.0), 3000);
 
+            cam1.follow(girl.get());
             scene1.at(2)->push_back(girl);
 
             // run of the pump 1) Get message from the user 
