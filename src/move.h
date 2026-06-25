@@ -1,6 +1,7 @@
 #pragma once
 #include "units.h"
 #include <functional>
+#include <memory>
 
 enum HDirection
 {
@@ -16,25 +17,26 @@ struct HMove
 
     void cancel()
     {
-        isCancelled_ = true;
+        *isCancelled_ = true;
     }
 
     HMove(HDirection direction, uint32_t start_time, units::Speed const &speed, TCharacter &character)
-        : direction_{direction}
+        : direction_{direction}, isCancelled_{std::make_shared<bool>(false)}
     {
         AddUpdate(start_time, speed, character);
     }
 
 private:
     HDirection direction_;
-    bool isCancelled_{false};
+    std::shared_ptr<bool> isCancelled_;
     // speed is in metres/second
     void AddUpdate(uint32_t start_time, units::Speed const &speed, TCharacter &character)
     { //  speed and character reference passing
+        auto isCancelled = isCancelled_;
         if (direction_ == HDirection::left)
         {
-            character.addUpdate([from = character.position_, speed, &character, start_time, this](typename TCharacter::SceneType *scene) {
-                if (isCancelled_)
+            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) {
+                if (*isCancelled)
                 {
                     return false;
                 }
@@ -45,8 +47,8 @@ private:
         }
         else
         {
-            character.addUpdate([from = character.position_, speed, &character, start_time, this](typename TCharacter::SceneType *scene) {
-                if (isCancelled_)
+            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) {
+                if (*isCancelled)
                 {
                     return false;
                 }
@@ -71,25 +73,26 @@ struct VMove
 
     void cancel()
     {
-        isCancelled_ = true;
+        *isCancelled_ = true;
     }
 
     VMove(VDirection direction, uint32_t start_time, units::Speed const &speed, TCharacter &character)
-        : direction_{direction}
+        : direction_{direction}, isCancelled_{std::make_shared<bool>(false)}
     {
         AddUpdate(start_time, speed, character);
     }
 
 private:
     VDirection direction_;
-    bool isCancelled_{false};
+    std::shared_ptr<bool> isCancelled_;
 
     void AddUpdate(uint32_t start_time, units::Speed const &speed, TCharacter &character)
     {
+        auto isCancelled = isCancelled_;
         if (direction_ == VDirection::up)
         {
-            character.addUpdate([from = character.position_, speed, &character, start_time, this](typename TCharacter::SceneType *scene) {
-                if (isCancelled_)
+            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) {
+                if (*isCancelled)
                 {
                     return false;
                 }
@@ -100,8 +103,8 @@ private:
         }
         else
         {
-            character.addUpdate([from = character.position_, speed, &character, start_time, this](typename TCharacter::SceneType *scene) {
-                if (isCancelled_)
+            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) {
+                if (*isCancelled)
                 {
                     return false;
                 }
