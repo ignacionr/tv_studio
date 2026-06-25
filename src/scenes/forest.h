@@ -63,7 +63,6 @@ public:
             //HMove
             //HMove(HDirection.,)
             HMove(HDirection::left, 0, units::Speed::MetresPerSecond(2), *ice);
-            Jump<CharacterType, CharacterType::SceneType, VMove<CharacterType>> jump1(*ice, units::Distance::Metres(10.0), units::Speed::MetresPerSecond(4.0), 3000);
             // change it into Pursue(xx,x,xx); (keep the reference)
             // Prosecution proc(xxx,xx,x,x,x,x);
 
@@ -89,6 +88,8 @@ public:
                 {HDirection::left, [&sprite_girl](){ sprite_girl.chooseAnimation("walkLeft");}},
                 {HDirection::right, [&sprite_girl](){ sprite_girl.chooseAnimation("walkRight");}}
             });
+
+            Jump<CharacterType, CharacterType::SceneType, VMove<CharacterType>> jump1(*girl, units::Distance::Metres(10.0), units::Speed::MetresPerSecond(4.0), 3000);
 
             scene1.at(2)->push_back(girl);
 
