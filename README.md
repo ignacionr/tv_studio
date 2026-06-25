@@ -4,6 +4,14 @@ A simple 2D C++ game/simulation framework built on top of the SDL2 framework (us
 
 ---
 
+## 🎯 Core Goal & Vision
+
+The central goal of this repository is to construct a lightweight, educational C++ framework that enables **high-level, expressive formulation of relatively complex 2D scenes**. 
+
+Instead of forcing developer-students to write redundant boilerplate, hardcode render-loops, or manually translate coordinates, the framework uses clean composition patterns (such as combining behavior updates with `operator+=`) and generic parametric programming (templates) to let students express sophisticated layers, animated characters, event routing, and AI steering behaviors in an elegant, declarative-like style.
+
+---
+
 ## 🏛️ Engine Architecture
 
 The framework is organized into three main layers: **SDL2 Wrapper Utilities**, the **Core Engine Architecture**, and the **Behavior/Steering** layer.
