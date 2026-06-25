@@ -1,7 +1,9 @@
 #pragma once
 #include <memory>
 #include <algorithm>
+#include <string>
 #include "units.h"
+#include "sdladapters.h"
 
 // A Camera produces renders by superposing the planes of a scene, from a perspective
 // camera is a class has two parameters of render and scene
@@ -9,7 +11,7 @@ template <typename TRenderer, typename TScene>
 struct Camera
 {
     Camera(std::shared_ptr<TRenderer> renderer) // constructor by passing render shared_ptr
-        : renderer_(renderer), target_character_(nullptr) { ; }
+        : renderer_(renderer), target_character_(nullptr), font_{nullptr} { ; }
 
     void scene(TScene const *scene_param) // setting up scene to the camera
     {
@@ -35,6 +37,10 @@ struct Camera
         {
             scene_->at(idx)->render(renderer_.get(), plane_translations_[idx]);
         }
+
+        // Render the camera position text overlay in the upper left corner
+        render_position_overlay();
+
         renderer_->Present(); // SDL requirement
     }
 
@@ -96,6 +102,55 @@ private:
         }
     }
 
+    // Educational comment: We define a private helper function to render the camera position.
+    // We use a simple semi-transparent black background panel behind the text to ensure high
+    // readability across different scrolling backgrounds.
+    void render_position_overlay()
+    {
+        if (!font_)
+        {
+            try
+            {
+                // Educational comment: std::make_unique is a helper function to create a std::unique_ptr.
+                // It avoids direct use of raw 'new' expressions, enforcing standard RAII principles.
+                font_ = std::make_unique<sdl::Font>("rsrc/fonts/Arial.ttf", 18);
+            }
+            catch (...)
+            {
+                return;
+            }
+        }
+
+        if (font_)
+        {
+            std::string text{"Camera - X: " + std::to_string(camera_x_) + ", Y: " + std::to_string(camera_y_)};
+            sdl::Color white_color{255, 255, 255, 255};
+            sdl::Color bg_color{0, 0, 0, 180}; // Semi-transparent black background
+            try
+            {
+                auto surface = font_->RenderText_Solid(text, white_color);
+                if (surface)
+                {
+                    // Create an SDL texture from the text surface.
+                    sdl::Texture text_texture(*renderer_, *surface);
+                    auto dims = surface->Dimensions();
+
+                    // Position the overlay with a 10px margin.
+                    typename TRenderer::RectType bg_rect{8, 8, dims.w + 12, dims.h + 8};
+                    renderer_->SetDrawColor(bg_color);
+                    renderer_->FillRect(&bg_rect);
+
+                    typename TRenderer::RectType dest{14, 12, dims.w, dims.h};
+                    renderer_->Copy(text_texture, nullptr, &dest);
+                }
+            }
+            catch (...)
+            {
+                // Gracefully ignore text rendering failures
+            }
+        }
+    }
+
     std::shared_ptr<TRenderer> renderer_;
     std::vector<std::function<typename TRenderer::RectType(typename TRenderer::RectType)>> plane_translations_;
     // System.Collections.Generic.Array<System.Func<Rect, Rect>>
@@ -108,4 +163,9 @@ private:
     const double aperture_{40.0};
     TScene const *scene_;
     typename TScene::CharacterType const *target_character_;
+    
+    // Educational comment: We use std::unique_ptr to manage the font resource lifetime.
+    // std::unique_ptr enforces single ownership and guarantees that the TTF_Font resource
+    // is closed properly (via TTF_CloseFont) in Font's destructor when this pointer goes out of scope.
+    std::unique_ptr<sdl::Font> font_;
 };
