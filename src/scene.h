@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <algorithm>
 #include "plane.h"
 
 // A Scene is a collection of superposing Planes of the same size
@@ -57,6 +58,12 @@ struct Scene
     {
         foreach_character([this](auto &ch) { // for each update
             ch->Update(this);
+
+            // Educational comment: We use std::clamp from <algorithm> to enforce boundary constraints.
+            // This ensures that the character's position_.x never drops below 0 (left edge)
+            // or exceeds w_ - ch->position_.w (right edge), preventing them from drifting
+            // out of the scene viewport bounds.
+            ch->position_.x = std::clamp(ch->position_.x, 0, w_ - ch->position_.w);
         });
     }
 

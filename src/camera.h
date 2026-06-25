@@ -75,7 +75,7 @@ private:
         // C# out => non-initialized values, pass by-ref (no equivalent)
         for (int idx = 0; idx < planes; ++idx)
         {
-            auto reduction = static_cast<uint32_t>(log(
+            auto reduction = static_cast<int>(log(
                 (camera_z_ + distance_between_planes_ * idx) / aperture_) * aperture_ / 4); // how small are things in the far
             plane_translations_[idx] = ([this, w, h, reduction](typename TRenderer::RectType rc) {
                 // center
