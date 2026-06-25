@@ -65,19 +65,43 @@ private:
     {
         const int planes = scene_->size();
         plane_translations_.resize(planes); // does this change at runtime?
-        // int reduction{-camera_z_};
         int w, h;
         renderer_->GetDimensions(&w, &h); // out parameters ? why pass the address?
-        // we pass the address-of each integer, so that the fn can modify the values
-        // C# ref => initialized values, pass by-ref (by-ref in C++)
-        // C# out => non-initialized values, pass by-ref (no equivalent)
+
+        // Educational comment: We dynamically find which plane (depth layer) contains the followed character.
+        // That plane will serve as our "focus plane" (scrolling exactly 1:1 with the camera).
+        // Planes closer to the camera will scroll faster, and planes further away will scroll slower.
+        int target_idx = 2; // Default to middle plane (plane 2) if no character is followed
+        if (target_character_ && scene_)
+        {
+            for (int idx = 0; idx < planes; ++idx)
+            {
+                auto plane = scene_->at(idx);
+                for (auto const &ch : *plane)
+                {
+                    if (ch.get() == target_character_)
+                    {
+                        target_idx = idx;
+                        break;
+                    }
+                }
+            }
+        }
+
         for (int idx = 0; idx < planes; ++idx)
         {
             auto reduction = static_cast<int>(log(
                 (camera_z_ + distance_between_planes_ * idx) / aperture_) * aperture_ / 4); // how small are things in the far
-            plane_translations_[idx] = ([this, w, h, reduction](typename TRenderer::RectType rc) {
-                // center
-                rc.x -= camera_x_ - w / 2;
+            
+            // Educational comment: We calculate a relative parallax factor using the perspective depth ratio.
+            // factor = Z_focus / Z_current.
+            // Since Z_focus = camera_z_ + d * target_idx, and Z_current = camera_z_ + d * idx:
+            double factor = static_cast<double>(camera_z_ + distance_between_planes_ * target_idx) / 
+                            static_cast<double>(camera_z_ + distance_between_planes_ * idx);
+
+            plane_translations_[idx] = ([this, w, h, reduction, factor](typename TRenderer::RectType rc) {
+                // center with parallax scroll factor
+                rc.x -= static_cast<int>((camera_x_ - w / 2) * factor);
                 rc.y += camera_y_ - h / 2;
                 // zoom
                 // rc.x -= static_cast<uint32_t>(w * (1 - zoom_));
