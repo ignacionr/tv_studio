@@ -10,8 +10,8 @@
 template <typename TRenderer, typename TScene>
 struct Camera
 {
-    Camera(std::shared_ptr<TRenderer> renderer) // constructor by passing render shared_ptr
-        : renderer_(renderer), target_character_(nullptr), font_{nullptr} { ; }
+    Camera(std::shared_ptr<TRenderer> renderer, bool show_overlay = false) // constructor by passing render shared_ptr
+        : renderer_(renderer), target_character_(nullptr), font_{nullptr}, show_overlay_{show_overlay} { ; }
 
     void scene(TScene const *scene_param) // setting up scene to the camera
     {
@@ -38,8 +38,11 @@ struct Camera
             scene_->at(idx)->render(renderer_.get(), plane_translations_[idx]);
         }
 
-        // Render the camera position text overlay in the upper left corner
-        render_position_overlay();
+        // Render the camera position text overlay in the upper left corner if enabled
+        if (show_overlay_)
+        {
+            render_position_overlay();
+        }
 
         renderer_->Present(); // SDL requirement
     }
@@ -179,6 +182,7 @@ private:
     const double aperture_{40.0};
     TScene const *scene_;
     typename TScene::CharacterType const *target_character_;
+    bool show_overlay_;
     
     // Educational comment: We use std::unique_ptr to manage the font resource lifetime.
     // std::unique_ptr enforces single ownership and guarantees that the TTF_Font resource

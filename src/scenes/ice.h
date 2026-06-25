@@ -6,7 +6,7 @@ class IceScene
     using CharacterType = Character<sdl::Renderer, sdl::EventPump::EventType>;
 
 public:
-    static void run() noexcept
+    static void run(bool show_camera_pos = false) noexcept
     {
         try
         {
@@ -15,7 +15,7 @@ public:
             CharacterType::SceneType scene1(7000, 400, 4);
             scene1.back()->background(std::string("rsrc/IMG_6110.jpg"));
             auto renderer{win.renderer()};
-            Camera<CharacterType::RendererType, CharacterType::SceneType> cam1(renderer);
+            Camera<CharacterType::RendererType, CharacterType::SceneType> cam1(renderer, show_camera_pos);
             cam1.scene(&scene1);
 
             int x = 1000;
