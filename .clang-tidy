@@ -1,0 +1,26 @@
+# .clang-tidy
+# Clang-Tidy configuration for tv_studio educational project.
+---
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -readability-magic-numbers,
+  -readability-braces-around-statements,
+  -readability-identifier-length,
+  -bugprone-exception-escape,
+  -bugprone-empty-catch
+
+# Treat all warnings as errors in CI to enforce clean code.
+WarningsAsErrors: "*"
+
+# Only analyze headers located in our src/ directory.
+HeaderFilterRegex: '^src/.*'
+
+# Format configuration.
+FormatStyle: none
+...

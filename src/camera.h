@@ -13,7 +13,11 @@ template <typename TRenderer, typename TScene>
 struct Camera
 {
     Camera(std::shared_ptr<TRenderer> renderer, bool show_overlay = false) // constructor by passing render shared_ptr
-        : renderer_(renderer), target_character_(nullptr), font_{nullptr}, show_overlay_{show_overlay} { ; }
+        // Educational comment: We initialize all member variables in the member initialization list.
+        // This is a strict C++ best practice that prevents compiler warnings/errors about uninitialized objects,
+        // and guarantees that variables like camera_x_, camera_y_, and the scene_ pointer have safe default values
+        // before any member function executes.
+        : renderer_(renderer), camera_x_{0}, camera_y_{0}, scene_{nullptr}, target_character_(nullptr), font_{nullptr}, show_overlay_{show_overlay} { ; }
 
     void scene(TScene const *scene_param) // setting up scene to the camera
     {
