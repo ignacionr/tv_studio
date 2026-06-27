@@ -29,10 +29,10 @@ public:
     {
         start_y_ = subject.position_.y;
         max_height_ = start_y_ - distance.pixels;
-        subject_.addUpdate([this](auto *scene) { return UpdateJump(scene); });
+        subject_.addUpdate([this](auto *scene) -> auto { return UpdateJump(scene); });
     }
 
-    bool UpdateJump(SceneType *scene)
+    auto UpdateJump(SceneType *scene) -> bool
     {
         auto currentTime = scene->age();
         if (currentTime < start_time_)

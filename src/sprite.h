@@ -10,7 +10,7 @@
 template <typename TRenderer>
 struct Sprite
 {
-    Sprite(TRenderer const &renderer, std::string const &imagefile, int rows = 1, int cols = 1) // sprite sheet?? want to undestand
+    Sprite(TRenderer const &renderer, std::string const &imagefile, int rows = 1, int cols = 1) // NOLINT(bugprone-easily-swappable-parameters)
         : rows_{rows}, cols_{cols}
     {
         texture_ = renderer.CreateTexture(imagefile, &dimensions_.w, &dimensions_.h);
@@ -18,25 +18,29 @@ struct Sprite
         dimensions_.w /= cols;
     }
 
-    void addAnimation(std::string const &name = "default", int from =0, int to=-1, int step_division=-1, SDL_RendererFlip flip = SDL_FLIP_NONE) 
+    static constexpr int DefaultStepDivisionNumerator{200};
+
+    auto addAnimation(std::string const &name = "default", int from =0, int to=-1, int step_division=-1, SDL_RendererFlip flip = SDL_FLIP_NONE) -> void
     {
-        if (to == -1)
+        if (to == -1) {
             to = from;
-        if (step_division == -1)
-            step_division = 200 / (to - from + 1);
+}
+        if (step_division == -1) {
+            step_division = DefaultStepDivisionNumerator / (to - from + 1);
+}
         animations_[name] = Animation{from, to, step_division, flip};
         chooseAnimation(name);
     }
 
-    void chooseAnimation(std::string const &name) 
+    auto chooseAnimation(std::string const &name) -> void 
     {
         current_animation_ = &animations_.at(name);
     }
 
     template <typename TCharacter>
-    void setupCharacter(TCharacter &character)
+    auto setupCharacter(TCharacter &character) -> void
     {
-        character.render_ = [&](TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator) { // lamda expression?
+        character.render_ = [&](TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator) -> void { // lamda expression?
             if (current_animation_) {
                 auto destination = translator(character.position_);
                 auto cell = (current_step_ % (current_animation_->loop_to_ - current_animation_->loop_from_ + 1)) + current_animation_->loop_from_;
@@ -46,7 +50,7 @@ struct Sprite
                 renderer->CopyEx(*texture_, &from, &destination, 0, nullptr, current_animation_->flip_);
             }
         };
-        character.addUpdate([&, last_position = character.position_](typename TCharacter::SceneType *scene) mutable {
+        character.addUpdate([&, last_position = character.position_](typename TCharacter::SceneType *scene) mutable -> auto {
             if (current_animation_)
             {
                 // Educational comment: We compare the current position to the captured last_position to detect movement.

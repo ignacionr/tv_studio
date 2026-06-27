@@ -2,7 +2,7 @@
 #include "scenes/forest.h"
 #include "scenes/ice.h"
 
-int main(int argc, char* argv[])
+auto main(int argc, char* argv[]) -> int
 {
     sdl::UsesSDL use_sdl;
     sdl::UsesFont use_font;
@@ -11,7 +11,8 @@ int main(int argc, char* argv[])
     bool has_capture = false;
     uint32_t capture_start = 0;
     uint32_t capture_end = 0;
-    uint32_t capture_fps = 24;
+    static constexpr uint32_t DefaultCaptureFps{24};
+    uint32_t capture_fps = DefaultCaptureFps;
 
     for (int i = 1; i < argc; ++i)
     {

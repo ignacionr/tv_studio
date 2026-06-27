@@ -13,7 +13,7 @@ struct Plane : public std::list<std::shared_ptr<TRenderable>> // inherit from li
     class ImageBackground // nested class (within class plane)
     {
     public:
-        ImageBackground(int const &w, int const &h, std::string filename) // set image background
+        ImageBackground(int const &w, int const &h, std::string filename) // set image background // NOLINT(bugprone-easily-swappable-parameters)
             : w_{w}, h_{h}, filename_{std::move(filename)} {}
 
         auto operator()(TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator) // operator function
@@ -45,12 +45,12 @@ struct Plane : public std::list<std::shared_ptr<TRenderable>> // inherit from li
         std::shared_ptr<typename TRenderer::TextureType> background_texture_;
     };
 
-    Plane(int w, int h) : w_(w), h_(h) {} // constructor? don't we have a destructor?
+    Plane(int w, int h) : w_(w), h_(h) {} // constructor? don't we have a destructor? // NOLINT(bugprone-easily-swappable-parameters)
 
-    void background(std::string const &filename)
+    auto background(std::string const &filename) -> void
     {
         image_background_ = std::make_shared<ImageBackground>(w_, h_, std::move(filename)); // set background
-        background_ = [this](auto renderer, auto const &translator){
+        background_ = [this](auto renderer, auto const &translator) -> void {
                     auto &bg {*image_background_}; // bg initialized from reference of image_background_
                     bg(renderer, translator);
         };
@@ -60,7 +60,7 @@ struct Plane : public std::list<std::shared_ptr<TRenderable>> // inherit from li
     template <typename TColor>
     void background(TColor const &color) // background by color
     {
-        background_ = [color, this](TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator) {
+        background_ = [color, this](TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator) -> auto {
             typename TRenderer::RectType rc{0, 0, w_, h_};
             rc = translator(rc);
             renderer->SetDrawColor(color);
@@ -72,8 +72,9 @@ struct Plane : public std::list<std::shared_ptr<TRenderable>> // inherit from li
     void render(TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator) const
     {
         // render background
-        if (background_)
+        if (background_) {
             background_(renderer, translator);
+}
 
         // render all characters
         for (auto &ch : *this) // foreach in c#

@@ -15,16 +15,16 @@ private:
     std::map<HDirection, std::function<void()>> setupDirections_;
 
 public:
-    Prosecution(TCharacter &subject, const TCharacter &target, bool isEndOnCollision, std::map<HDirection, std::function<void()>> setupDirections)
+    Prosecution(TCharacter &subject, const TCharacter &target, bool isEndOnCollision, std::map<HDirection, std::function<void()> /*unused*/> setupDirections)
     : subject_{subject}, target_{target}, isEndOnCollision_{isEndOnCollision}, setupDirections_{std::move(setupDirections)} // initialization list, when we have reference we have to use it (references need to be initialize)
     {
         // "duck typing": "if it looks like a duck, sounds like a duck, walks like a duck, then it's a duck"
-        subject_.addUpdate([this](auto *scene) { return UpdateSubject(scene); });
+        subject_.addUpdate([this](auto *scene) -> auto { return UpdateSubject(scene); });
         // nowadays, we don't use "bind" but prefer a lambda like that before
         // _subject.addUpdate(std::bind(&Prosecution<TCharacter,SceneType>::UpdateSubject, this, std::placeholders::_1));
     }
 
-    bool UpdateSubject(SceneType *scene)
+    auto UpdateSubject(SceneType *scene) -> bool
     {
         // we need to follow the target, two options:
         // 1. we make the position of our subject closer to the target, or

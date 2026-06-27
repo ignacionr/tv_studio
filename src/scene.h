@@ -9,7 +9,7 @@ struct Scene
 {
     using CharacterType = TRenderable;
 
-    Scene(unsigned int w, unsigned int h, unsigned int z)
+    Scene(unsigned int w, unsigned int h, unsigned int z) // NOLINT(bugprone-easily-swappable-parameters)
         : w_(static_cast<int>(w)), h_(static_cast<int>(h))
     {
         planes_.reserve(z);
@@ -42,9 +42,9 @@ struct Scene
         }
     }
 
-    bool handle_event(typename TRenderable::EventType *ev)
+    auto handle_event(typename TRenderable::EventType *ev) -> bool
     {
-        foreach_character([ev](auto &ch) { // for each react
+        foreach_character([ev](auto &ch) -> auto { // for each react
             if (ch->react_)                // react_ ??
             {
                 ch->react_(ev);
@@ -55,7 +55,7 @@ struct Scene
 
     void update()
     {
-        foreach_character([this](auto &ch) { // for each update
+        foreach_character([this](auto &ch) -> auto { // for each update
             ch->Update(this);
         });
     }

@@ -33,7 +33,7 @@ namespace sdl
     class Color
     {
     public:
-        Color(unsigned char red, unsigned char green, unsigned char blue, unsigned char opacity = SDL_ALPHA_OPAQUE)
+        Color(unsigned char red, unsigned char green, unsigned char blue, unsigned char opacity = SDL_ALPHA_OPAQUE) // NOLINT(bugprone-easily-swappable-parameters)
             : value_{.r = red, .g = green, .b = blue, .a = opacity}
         {
         }
@@ -73,7 +73,7 @@ namespace sdl
         using EventType = SDL_Event;
         using HandlerType = std::function<bool(SDL_Event *)>;
 
-        void run(std::function<void()> const &fn, unsigned int intended_milliseconds, HandlerType const &handler)
+        void run(std::function<void()> const &fn, unsigned int intended_milliseconds, HandlerType const &handler) // NOLINT(bugprone-easily-swappable-parameters)
         {
             SDL_Event ev;
             auto last_event{SDL_GetTicks()};
@@ -82,7 +82,7 @@ namespace sdl
             {
                 if (code)
                 {
-                    if (!std::any_of(handlers_.begin(), handlers_.end(), [&ev](auto const &kv) {
+                    if (!std::any_of(handlers_.begin(), handlers_.end(), [&ev](auto const &kv) -> auto {
                             return kv.second(&ev);
                         }))
                     {
@@ -105,13 +105,13 @@ namespace sdl
         }
 
         template <typename T>
-        auto &operator+=(T *o)
+        auto operator+=(T *o) -> auto &
         {
             handlers_[o] = std::bind(&T::handle_event, o, std::placeholders::_1);
             return *this;
         }
 
-        auto &operator-=(void *o)
+        auto operator-=(void *o) -> auto &
         {
             handlers_.erase(o);
             return *this;
@@ -175,7 +175,7 @@ namespace sdl
         }
         operator SDL_Texture *() const { return texture_; }
 
-        auto &SetColorMod(Uint8 r, Uint8 g, Uint8 b)
+        auto SetColorMod(Uint8 r, Uint8 g, Uint8 b) -> auto &
         {
             SDL_SetTextureColorMod(texture_, r, g, b);
             return *this;
@@ -207,7 +207,8 @@ namespace sdl
     class Font
     {
     public:
-        Font(const char *filename, int pointsize = 120)
+        static constexpr int DefaultFontSize{120};
+        Font(const char *filename, int pointsize = DefaultFontSize)
         {
             font_ = TTF_OpenFont(filename, pointsize);
             if (nullptr == font_)
@@ -237,7 +238,7 @@ namespace sdl
     class Window
     {
     public:
-        Window(std::string_view const &title, int width, int height, EventPump &pump)
+        Window(std::string_view const &title, int width, int height, EventPump &pump) // NOLINT(bugprone-easily-swappable-parameters)
             : pump_{pump}
         {
             window_ = SDL_CreateWindow(
@@ -260,7 +261,7 @@ namespace sdl
             pump_ -= this;
         }
 
-        std::shared_ptr<Renderer> renderer()
+        auto renderer() -> std::shared_ptr<Renderer>
         {
             if (!renderer_)
             {
@@ -279,7 +280,7 @@ namespace sdl
             return SDL_GetWindowID(window_);
         }
 
-        bool handle_event(SDL_Event *ev)
+        auto handle_event(SDL_Event *ev) -> bool
         {
             if (0 == (ev->type & SDL_WINDOWEVENT) || ev->window.windowID != WindowID())
             {
@@ -312,14 +313,16 @@ namespace sdl
             : should_free_{true}
         {
             cursor_ = ::SDL_CreateSystemCursor(c);
-            if (!cursor_)
+            if (!cursor_) {
                 throw Error();
+}
         }
         Cursor()
         {
             cursor_ = ::SDL_GetCursor();
-            if (!cursor_)
+            if (!cursor_) {
                 throw Error();
+}
         }
         ~Cursor()
         {
@@ -329,7 +332,7 @@ namespace sdl
             }
         }
 
-        auto &Set()
+        auto Set() -> auto &
         {
             ::SDL_SetCursor(cursor_);
             return *this;
@@ -373,13 +376,13 @@ namespace sdl
 
         operator SDL_Renderer *() const { return renderer_; }
 
-        auto &GetDimensions(int *w, int *h) const
+        auto GetDimensions(int *w, int *h) const -> auto &
         {
             ::SDL_RenderGetLogicalSize(*this, w, h);
             return *this;
         }
 
-        auto &Capture(std::string const &filename)
+        auto Capture(std::string const &filename) -> auto &
         {
             int w{0};
             int h{0};
@@ -415,7 +418,7 @@ namespace sdl
             return *this;
         }
 
-        auto &SetDrawColor(const Color &color)
+        auto SetDrawColor(const Color &color) -> auto &
         {
             if (0 != SDL_SetRenderDrawColor(*this, color.red(), color.green(), color.blue(), color.opacity()))
             {
@@ -424,7 +427,7 @@ namespace sdl
             return *this;
         }
 
-        auto &FillRect(const RectType *rc)
+        auto FillRect(const RectType *rc) -> auto &
         {
             if (0 != SDL_RenderFillRect(*this, rc))
             {
@@ -433,32 +436,33 @@ namespace sdl
             return *this;
         }
 
-        auto &Clear()
+        auto Clear() -> auto &
         {
             SDL_RenderClear(*this);
             return *this;
         }
 
-        auto &Clear(const Color &color)
+        auto Clear(const Color &color) -> auto &
         {
             return SetDrawColor(color).Clear();
         }
 
-        auto &Present()
+        auto Present() -> auto &
         {
             SDL_RenderPresent(*this);
             return *this;
         }
 
-        auto &Copy(Texture const &texture, RectType const *from = nullptr, RectType const *to = nullptr)
+        auto Copy(Texture const &texture, RectType const *from = nullptr, RectType const *to = nullptr) -> auto &
         {
-            if (0 != SDL_RenderCopy(*this, texture, from, to))
+            if (0 != SDL_RenderCopy(*this, texture, from, to)) {
                 throw Error();
+}
             return *this;
         }
 
-        auto &CopyEx(Texture const &texture, RectType const *from, RectType const *to,
-                     double angle, SDL_Point const *center, SDL_RendererFlip flip)
+        auto CopyEx(Texture const &texture, RectType const *from, RectType const *to,
+                     double angle, SDL_Point const *center, SDL_RendererFlip flip) -> auto &
         {
             if (0 != SDL_RenderCopyEx(*this, texture, from, to, angle, center, flip))
             {
@@ -467,14 +471,15 @@ namespace sdl
             return *this;
         }
 
-        auto &SetViewPort(RectType *rc)
+        auto SetViewPort(RectType *rc) -> auto &
         {
-            if (0 != ::SDL_RenderSetViewport(*this, rc))
+            if (0 != ::SDL_RenderSetViewport(*this, rc)) {
                 throw Error();
+}
             return *this;
         }
 
-        auto &DrawLines(SDL_Point const *points, int count)
+        auto DrawLines(SDL_Point const *points, int count) -> auto &
         {
             if (0 != ::SDL_RenderDrawLines(*this, points, count))
             {
@@ -483,14 +488,16 @@ namespace sdl
             return *this;
         }
 
-        auto CreateTexture(std::string const &filename, int *w = nullptr, int *h = nullptr) const
+        auto CreateTexture(std::string const &filename, int *w = nullptr, int *h = nullptr) const // NOLINT(bugprone-easily-swappable-parameters)
         {
             Surface surface(filename.c_str());
             auto dimensions{surface.Dimensions()};
-            if (w)
+            if (w) {
                 *w = dimensions.w;
-            if (h)
+}
+            if (h) {
                 *h = dimensions.h;
+}
             return std::make_shared<TextureType>(*this, surface);
         }
 
@@ -501,7 +508,7 @@ namespace sdl
 
 } // namespace sdl
 
-std::ostream &operator<<(std::ostream &out, SDL_Rect const &r)
+auto operator<<(std::ostream &out, SDL_Rect const &r) -> std::ostream &
 {
     return out << "{" << r.x << "," << r.y << "," << r.w << "," << r.h << "}";
 }

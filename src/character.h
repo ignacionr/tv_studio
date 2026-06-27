@@ -11,21 +11,24 @@ struct Scene;
 // that in turn, will allow for composition of moves (right now, moves are independent of the current position -they take from the start)
 
 template <typename TScene>
-std::function<bool(TScene *)> operator+(std::function<bool(TScene *)> const &a, std::function<bool(TScene *)> b) // a and b are two updates
+auto operator+(std::function<bool(TScene *)> const &a, std::function<bool(TScene *)> b) -> std::function<bool(TScene *)> // a and b are two updates
 {
-    if (!a) // if pass function has nothing a return b
+    if (!a) { // if pass function has nothing a return b
         return b;
-    if (!b) // likewise above
+}
+    if (!b) { // likewise above
         return a;
+}
     auto pa = std::make_shared<std::function<bool(TScene *)>>(a); // pa is shared pointer to a
     auto pb = std::make_shared<std::function<bool(TScene *)>>(b);
-    return [pa, pb](TScene *scene) mutable { // lambda funct
+    return [pa, pb](TScene *scene) mutable -> auto { // lambda funct
         bool result{false};                  // result assign to false - bool result = false? (why not?)
         if (pa)
         {
             result = (*pa)(scene); // call pa and pass the scene
-            if (!result)
+            if (!result) {
                 pa.reset(); // Destroys the object currently managed by the unique_ptr (if any) and takes ownership of p.
+}
         }
         if (pb)
         {
@@ -43,7 +46,7 @@ std::function<bool(TScene *)> operator+(std::function<bool(TScene *)> const &a, 
 }
 
 template <typename TScene> // line 62 - combine two update
-std::function<bool(TScene *)> &operator+=(std::function<bool(TScene *)> &a, std::function<bool(TScene *)> b)
+auto operator+=(std::function<bool(TScene *)> &a, std::function<bool(TScene *)> b) -> std::function<bool(TScene *)> &
 {
     a = a + std::move(b);
     return a;
@@ -71,27 +74,31 @@ struct Character
         update_ += std::move(update); // combine two update
     }
 
-    bool Update(SceneType *scene)
+    auto Update(SceneType *scene) -> bool
     {
-        if (update_)
+        if (update_) {
             return update_(scene); // update the scene and return true?
+}
         return false;
     }
 
-    auto dispersionCount() const
+    static constexpr int DefaultDispersionCount{500};
+    static constexpr double DefaultMoveSpeed{8.0};
+
+    auto dispersionCount() const -> int
     {
-        return 500;
+        return DefaultDispersionCount;
     }
 
-    auto moveFactory()
+    auto moveFactory() -> auto
     {
         // we need to return something that will be called as:
         // returnedObject(SDL_Rect)
         // this needs to produce a shared_ptr<HMove> such that
         // HMove can be called to cancel (move.cancel())
-        return [&](auto direction, uint32_t start_time) {
+        return [&](auto direction, uint32_t start_time) -> auto {
             // HOMEWORK: complete the list of parameters to the constructor of HMove
-            return std::make_shared<HMove<Character>>(direction, start_time, units::Speed::MetresPerSecond(8.0), *this);
+            return std::make_shared<HMove<Character>>(direction, start_time, units::Speed::MetresPerSecond(DefaultMoveSpeed), *this);
         };
     }
 

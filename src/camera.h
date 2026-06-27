@@ -20,19 +20,19 @@ struct Camera
         // before any member function executes.
         : renderer_(std::move(renderer)), target_character_(nullptr), font_{nullptr}, show_overlay_{show_overlay} { ; }
 
-    void scene(TScene const *scene_param) // setting up scene to the camera
+    auto scene(TScene const *scene_param) -> void // setting up scene to the camera
     {
         scene_ = scene_param;
         plane_translations_.resize(0); // why it resize to zero? initial vector size is not zero?
         camera_y_ = scene_param->pixel_size().h / 2; 
     }
 
-    void follow(typename TScene::CharacterType const *character) // set character to follow
+    auto follow(typename TScene::CharacterType const *character) -> void // set character to follow
     {
         target_character_ = character;
     }
 
-    void configure_capture(uint32_t start_ms, uint32_t end_ms, uint32_t fps)
+    auto configure_capture(uint32_t start_ms, uint32_t end_ms, uint32_t fps) -> void // NOLINT(bugprone-easily-swappable-parameters)
     {
         capture_start_ms_ = start_ms;
         capture_end_ms_ = end_ms;
@@ -40,7 +40,7 @@ struct Camera
         capture_enabled_ = true;
     }
 
-    void render()
+    auto render() -> void
     {
         renderer_->Clear(); // clear the render
         if (plane_translations_.empty())
@@ -88,7 +88,7 @@ struct Camera
         renderer_->Present(); // SDL requirement
     }
 
-    void update()
+    auto update() -> void
     {
         // camera_z_ = std::min({(-50) + (static_cast<int>(scene_->age()) / 100), -10});
         if (target_character_)
@@ -105,7 +105,7 @@ struct Camera
 
 // C++ style guide allows private member variables at the end
 private:
-    void create_plane_translations()
+    auto create_plane_translations() -> void
     {
         const int planes = scene_->size();
         plane_translations_.resize(planes); // does this change at runtime?
@@ -143,9 +143,9 @@ private:
             double factor = static_cast<double>(camera_z_ + (distance_between_planes_ * target_idx)) / 
                             static_cast<double>(camera_z_ + (distance_between_planes_ * idx));
 
-            plane_translations_[idx] = ([this, w, h, reduction, factor](typename TRenderer::RectType rc) {
+            plane_translations_[idx] = ([this, w, h, reduction, factor](typename TRenderer::RectType rc) -> auto {
                 // center with parallax scroll factor
-                rc.x -= static_cast<int>((camera_x_ - (w / 2.0)) * factor);
+                rc.x -= static_cast<int>((camera_x_ - (w / HalfDivisor)) * factor);
                 rc.y += camera_y_ - (h / 2);
                 // zoom
                 // rc.x -= static_cast<uint32_t>(w * (1 - zoom_));
@@ -162,10 +162,7 @@ private:
         }
     }
 
-    // Educational comment: We define a private helper function to render the camera position.
-    // We use a simple semi-transparent black background panel behind the text to ensure high
-    // readability across different scrolling backgrounds.
-    void render_position_overlay()
+    auto render_position_overlay() -> void
     {
         if (!font_)
         {
@@ -173,7 +170,7 @@ private:
             {
                 // Educational comment: std::make_unique is a helper function to create a std::unique_ptr.
                 // It avoids direct use of raw 'new' expressions, enforcing standard RAII principles.
-                font_ = std::make_unique<sdl::Font>("rsrc/fonts/Arial.ttf", 18);
+                font_ = std::make_unique<sdl::Font>("rsrc/fonts/Arial.ttf", OverlayFontSize);
             }
             catch (...)
             {
@@ -184,8 +181,8 @@ private:
         if (font_)
         {
             std::string text{"Camera - X: " + std::to_string(camera_x_) + ", Y: " + std::to_string(camera_y_)};
-            sdl::Color white_color{255, 255, 255, 255};
-            sdl::Color bg_color{0, 0, 0, 180}; // Semi-transparent black background
+            sdl::Color white_color{FullIntensity, FullIntensity, FullIntensity, FullIntensity};
+            sdl::Color bg_color{0, 0, 0, OverlayBgOpacity}; // Semi-transparent black background
             try
             {
                 auto surface = font_->RenderText_Solid(text, white_color);
@@ -196,11 +193,11 @@ private:
                     auto dims = surface->Dimensions();
 
                     // Position the overlay with a 10px margin.
-                    typename TRenderer::RectType bg_rect{8, 8, dims.w + 12, dims.h + 8};
+                    typename TRenderer::RectType bg_rect{OverlayPadding, OverlayPadding, dims.w + OverlayExtraWidth, dims.h + OverlayPadding};
                     renderer_->SetDrawColor(bg_color);
                     renderer_->FillRect(&bg_rect);
 
-                    typename TRenderer::RectType dest{14, 12, dims.w, dims.h};
+                    typename TRenderer::RectType dest{OverlayTextX, OverlayTextY, dims.w, dims.h};
                     renderer_->Copy(text_texture, nullptr, &dest);
                 }
             }
@@ -210,6 +207,16 @@ private:
             }
         }
     }
+
+    static constexpr int OverlayFontSize{18};
+    static constexpr unsigned char FullIntensity{255};
+    static constexpr unsigned char OverlayBgOpacity{180};
+    static constexpr int OverlayPadding{8};
+    static constexpr int OverlayExtraWidth{12};
+    static constexpr int OverlayTextX{14};
+    static constexpr int OverlayTextY{12};
+    static constexpr uint32_t DefaultCaptureFps{24};
+    static constexpr double HalfDivisor{2.0};
 
     std::shared_ptr<TRenderer> renderer_;
     std::vector<std::function<typename TRenderer::RectType(typename TRenderer::RectType)>> plane_translations_;
@@ -227,7 +234,7 @@ private:
     bool capture_enabled_{false};
     uint32_t capture_start_ms_{0};
     uint32_t capture_end_ms_{0};
-    uint32_t capture_fps_{24};
+    uint32_t capture_fps_{DefaultCaptureFps};
     uint32_t next_capture_index_{0};
     
     // Educational comment: We use std::unique_ptr to manage the font resource lifetime.

@@ -36,7 +36,7 @@ private:
         auto isCancelled = isCancelled_;
         if (direction_ == HDirection::left)
         {
-            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) {
+            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) -> auto {
                 if (*isCancelled)
                 {
                     return false;
@@ -48,7 +48,7 @@ private:
         }
         else
         {
-            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) {
+            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) -> auto {
                 if (*isCancelled)
                 {
                     return false;
@@ -92,7 +92,7 @@ private:
         auto isCancelled = isCancelled_;
         if (direction_ == VDirection::up)
         {
-            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) {
+            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) -> auto {
                 if (*isCancelled)
                 {
                     return false;
@@ -104,7 +104,7 @@ private:
         }
         else
         {
-            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) {
+            character.addUpdate([from = character.position_, speed, &character, start_time, isCancelled](typename TCharacter::SceneType *scene) -> auto {
                 if (*isCancelled)
                 {
                     return false;

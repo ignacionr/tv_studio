@@ -8,17 +8,14 @@ Checks: >
   modernize-*,
   performance-*,
   readability-*,
-  -modernize-use-trailing-return-type,
-  -readability-magic-numbers,
-  -readability-braces-around-statements,
-  -readability-identifier-length,
-  -bugprone-exception-escape,
-  -bugprone-empty-catch,
   -readability-implicit-bool-conversion,
   -modernize-use-nodiscard,
   -readability-isolate-declaration,
-  -bugprone-easily-swappable-parameters,
-  -modernize-avoid-bind
+  -bugprone-exception-escape,
+  -bugprone-empty-catch,
+  -modernize-avoid-bind,
+  -readability-convert-member-functions-to-static,
+  -readability-identifier-length
 
 # Treat all warnings as errors in CI to enforce clean code.
 WarningsAsErrors: "*"
