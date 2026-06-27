@@ -47,7 +47,7 @@ struct Plane : public std::list<std::shared_ptr<TRenderable>> // inherit from li
 
     Plane(int w, int h) : w_(w), h_(h) {} // constructor? don't we have a destructor? // NOLINT(bugprone-easily-swappable-parameters)
 
-    auto background(std::string const &filename) -> void
+    auto background(std::string filename) -> void
     {
         image_background_ = std::make_shared<ImageBackground>(w_, h_, std::move(filename)); // set background
         background_ = [this](auto renderer, auto const &translator) -> void {
