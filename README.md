@@ -1,5 +1,7 @@
 # tv_studio
 
+[![CI Build](https://github.com/ignacionr/tv_studio/actions/workflows/ci.yml/badge.svg)](https://github.com/ignacionr/tv_studio/actions/workflows/ci.yml)
+
 A simple 2D C++ game/simulation framework built on top of the SDL2 framework (using SDL2, SDL2_image, and SDL2_ttf).
 
 ![Simulation Preview](rsrc/animation.gif)
