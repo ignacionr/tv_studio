@@ -24,7 +24,7 @@ public:
 
             int x = 1000;
             auto ice = std::make_shared<CharacterType>();
-            auto p = ice.get();
+            auto *const p = ice.get();
             p->position_ = {x, 300, 80, 80};
             Sprite sprite_ice(*renderer, "rsrc/ice-block.png");
             sprite_ice.setupCharacter(*p);
@@ -50,7 +50,7 @@ public:
         }
         catch (sdl::Error &err)
         {
-            std::cerr << err.what() << std::endl;
+            std::cerr << err.what() << "\n";
         }
     }
 };

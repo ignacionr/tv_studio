@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <cstdint>
 #include "../move.h"
 #include "../units.h"
 
@@ -7,7 +8,7 @@ template <typename TCharacter, typename SceneType, typename TMove>
 class Jump
 {
 private:
-    enum class JumpState
+    enum class JumpState : std::uint8_t
     {
         ascending,
         descending,

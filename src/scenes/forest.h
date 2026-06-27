@@ -11,7 +11,7 @@
 #include "../will/prosecution.h"
 #include "../will/jump.h"
 
-typedef Character<sdl::Renderer, sdl::EventPump::EventType> CharacterType; // character is implemented through sdl - need to have renderer and event
+using CharacterType = Character<sdl::Renderer, sdl::EventPump::EventType>; // character is implemented through sdl - need to have renderer and event
 
 class ForestScene
 {
@@ -118,7 +118,7 @@ public:
         }
         catch (sdl::Error &err)
         {
-            std::cerr << err.what() << std::endl;
+            std::cerr << err.what() << "\n";
         }
     }
 };

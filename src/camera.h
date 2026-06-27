@@ -4,6 +4,7 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include <utility>
 #include "units.h"
 #include "sdladapters.h"
 
@@ -17,7 +18,7 @@ struct Camera
         // This is a strict C++ best practice that prevents compiler warnings/errors about uninitialized objects,
         // and guarantees that variables like camera_x_, camera_y_, and the scene_ pointer have safe default values
         // before any member function executes.
-        : renderer_(renderer), camera_x_{0}, camera_y_{0}, scene_{nullptr}, target_character_(nullptr), font_{nullptr}, show_overlay_{show_overlay} { ; }
+        : renderer_(std::move(renderer)), target_character_(nullptr), font_{nullptr}, show_overlay_{show_overlay} { ; }
 
     void scene(TScene const *scene_param) // setting up scene to the camera
     {
@@ -66,7 +67,7 @@ struct Camera
             const uint32_t current_time{scene_->age()};
             if (current_time >= capture_start_ms_ && current_time <= capture_end_ms_)
             {
-                const uint32_t target_time{capture_start_ms_ + next_capture_index_ * 1000 / capture_fps_};
+                const uint32_t target_time{capture_start_ms_ + ((next_capture_index_ * 1000) / capture_fps_)};
                 if (current_time >= target_time)
                 {
                     std::ostringstream ss;
@@ -92,7 +93,7 @@ struct Camera
         // camera_z_ = std::min({(-50) + (static_cast<int>(scene_->age()) / 100), -10});
         if (target_character_)
         {
-            camera_x_ = target_character_->position_.x + target_character_->position_.w / 2;
+            camera_x_ = target_character_->position_.x + (target_character_->position_.w / 2);
         }
         else
         {
@@ -134,18 +135,18 @@ private:
         for (int idx = 0; idx < planes; ++idx)
         {
             auto reduction = static_cast<int>(log(
-                (camera_z_ + distance_between_planes_ * idx) / aperture_) * aperture_ / 4); // how small are things in the far
+                (camera_z_ + (distance_between_planes_ * idx)) / aperture_) * (aperture_ / 4)); // how small are things in the far
             
             // Educational comment: We calculate a relative parallax factor using the perspective depth ratio.
             // factor = Z_focus / Z_current.
             // Since Z_focus = camera_z_ + d * target_idx, and Z_current = camera_z_ + d * idx:
-            double factor = static_cast<double>(camera_z_ + distance_between_planes_ * target_idx) / 
-                            static_cast<double>(camera_z_ + distance_between_planes_ * idx);
+            double factor = static_cast<double>(camera_z_ + (distance_between_planes_ * target_idx)) / 
+                            static_cast<double>(camera_z_ + (distance_between_planes_ * idx));
 
             plane_translations_[idx] = ([this, w, h, reduction, factor](typename TRenderer::RectType rc) {
                 // center with parallax scroll factor
-                rc.x -= static_cast<int>((camera_x_ - w / 2) * factor);
-                rc.y += camera_y_ - h / 2;
+                rc.x -= static_cast<int>((camera_x_ - (w / 2.0)) * factor);
+                rc.y += camera_y_ - (h / 2);
                 // zoom
                 // rc.x -= static_cast<uint32_t>(w * (1 - zoom_));
                 // rc.y += static_cast<uint32_t>(h * (1 - zoom_));
@@ -216,11 +217,11 @@ private:
     // it's a dynamic array of functions that take a Rect and return a Rect
     const units::Distance camera_z_{units::Distance::Metres(10.0)}; // camera is away 10m from the first plane
     const units::Distance distance_between_planes_{units::Distance::Metres(2.0)}; // difference between planes 
-    int camera_x_;
-    int camera_y_;
+    int camera_x_{0};
+    int camera_y_{0};
     double zoom_{1.0};
     const double aperture_{40.0};
-    TScene const *scene_;
+    TScene const *scene_{nullptr};
     typename TScene::CharacterType const *target_character_;
     bool show_overlay_;
     bool capture_enabled_{false};

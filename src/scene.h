@@ -10,7 +10,7 @@ struct Scene
     using CharacterType = TRenderable;
 
     Scene(unsigned int w, unsigned int h, unsigned int z)
-        : w_(w), h_(h)
+        : w_(static_cast<int>(w)), h_(static_cast<int>(h))
     {
         planes_.reserve(z);
         for (; z; --z)

@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <memory>
+#include <utility>
 
 template <typename TRenderable>
 struct Scene;
@@ -44,7 +45,7 @@ std::function<bool(TScene *)> operator+(std::function<bool(TScene *)> const &a, 
 template <typename TScene> // line 62 - combine two update
 std::function<bool(TScene *)> &operator+=(std::function<bool(TScene *)> &a, std::function<bool(TScene *)> b)
 {
-    a = a + b;
+    a = a + std::move(b);
     return a;
 }
 
@@ -53,13 +54,13 @@ std::function<bool(TScene *)> &operator+=(std::function<bool(TScene *)> &a, std:
 template <typename TRenderer, typename TEvent>
 struct Character
 {
-    typedef TEvent EventType; //creates an alias that can be used anywhere in place of a (possibly complex) type name.
-    typedef TRenderer RendererType;
-    // typedef is an alias for a type
+    using EventType = TEvent; //creates an alias that can be used anywhere in place of a (possibly complex) type name.
+    using RendererType = TRenderer;
+    // using is an alias for a type
     // int x; // defines a variable x of type int
-    // typedef int X; // defines a type X that is equivalent to int
-    typedef Scene<Character<TRenderer, TEvent>> SceneType; // scene is a vector of characters
-    typedef std::function<bool(SceneType *)> UpdateType;   // update type is a function accepting scene and return bool
+    // using X = int; // defines a type X that is equivalent to int
+    using SceneType = Scene<Character<TRenderer, TEvent>>; // scene is a vector of characters
+    using UpdateType = std::function<bool(SceneType *)>;   // update type is a function accepting scene and return bool
 
     std::function<void(TRenderer *, std::function<typename TRenderer::RectType(typename TRenderer::RectType)>)> render_;
     std::function<bool(EventType *)> react_;
@@ -67,7 +68,7 @@ struct Character
 
     void addUpdate(UpdateType update)
     {
-        update_ += update; // combine two update
+        update_ += std::move(update); // combine two update
     }
 
     bool Update(SceneType *scene)

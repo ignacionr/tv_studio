@@ -70,15 +70,15 @@ namespace sdl
     class EventPump
     {
     public:
-        typedef SDL_Event EventType;
-        typedef std::function<bool(SDL_Event *)> HandlerType;
+        using EventType = SDL_Event;
+        using HandlerType = std::function<bool(SDL_Event *)>;
 
-        void run(std::function<void()> fn, unsigned int intended_milliseconds, HandlerType handler)
+        void run(std::function<void()> const &fn, unsigned int intended_milliseconds, HandlerType const &handler)
         {
             SDL_Event ev;
             auto last_event{SDL_GetTicks()};
             auto available_time{intended_milliseconds};
-            for (auto code = SDL_WaitEventTimeout(&ev, available_time); !code || ev.type != SDL_EventType::SDL_QUIT; code = SDL_WaitEventTimeout(&ev, available_time))
+            for (auto code = SDL_WaitEventTimeout(&ev, static_cast<int>(available_time)); !code || ev.type != SDL_EventType::SDL_QUIT; code = SDL_WaitEventTimeout(&ev, static_cast<int>(available_time)))
             {
                 if (code)
                 {
@@ -210,7 +210,7 @@ namespace sdl
         Font(const char *filename, int pointsize = 120)
         {
             font_ = TTF_OpenFont(filename, pointsize);
-            if (NULL == font_)
+            if (nullptr == font_)
             {
                 throw FontError();
             }
@@ -344,8 +344,8 @@ namespace sdl
     class Renderer
     {
     public:
-        typedef SDL_Rect RectType;
-        typedef sdl::Texture TextureType;
+        using RectType = SDL_Rect;
+        using TextureType = sdl::Texture;
 
         static auto GetTicks()
         {

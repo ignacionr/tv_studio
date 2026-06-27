@@ -36,7 +36,7 @@ struct Sprite
     template <typename TCharacter>
     void setupCharacter(TCharacter &character)
     {
-        character.render_ = [&](TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> translator) { // lamda expression?
+        character.render_ = [&](TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator) { // lamda expression?
             if (current_animation_) {
                 auto destination = translator(character.position_);
                 auto cell = (current_step_ % (current_animation_->loop_to_ - current_animation_->loop_from_ + 1)) + current_animation_->loop_from_;

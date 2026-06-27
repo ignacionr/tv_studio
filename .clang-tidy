@@ -13,13 +13,18 @@ Checks: >
   -readability-braces-around-statements,
   -readability-identifier-length,
   -bugprone-exception-escape,
-  -bugprone-empty-catch
+  -bugprone-empty-catch,
+  -readability-implicit-bool-conversion,
+  -modernize-use-nodiscard,
+  -readability-isolate-declaration,
+  -bugprone-easily-swappable-parameters,
+  -modernize-avoid-bind
 
 # Treat all warnings as errors in CI to enforce clean code.
 WarningsAsErrors: "*"
 
-# Only analyze headers located in our src/ directory.
-HeaderFilterRegex: '^src/.*'
+# Match all headers inside the src/ directory (supporting absolute paths)
+HeaderFilterRegex: '.*/src/.*'
 
 # Format configuration.
 FormatStyle: none

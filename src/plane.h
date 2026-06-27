@@ -2,20 +2,21 @@
 #include <functional>
 #include <memory>
 #include <iostream>
+#include <utility>
 
 // A Plane is one positioning line along the x,y axis
 template <typename TRenderable>
 struct Plane : public std::list<std::shared_ptr<TRenderable>> // inherit from list of TRenderable shared ptr
 {
-    typedef typename TRenderable::RendererType TRenderer;
+    using TRenderer = typename TRenderable::RendererType;
 
     class ImageBackground // nested class (within class plane)
     {
     public:
-        ImageBackground(int const &w, int const &h, std::string const &filename) // set image background
-            : w_{w}, h_{h}, filename_{filename} {}
+        ImageBackground(int const &w, int const &h, std::string filename) // set image background
+            : w_{w}, h_{h}, filename_{std::move(filename)} {}
 
-        auto operator()(TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> translator) // operator function
+        auto operator()(TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator) // operator function
         {
             if (!background_texture_)
             {
@@ -48,10 +49,10 @@ struct Plane : public std::list<std::shared_ptr<TRenderable>> // inherit from li
 
     void background(std::string const &filename)
     {
-        image_background_ = std::make_shared<ImageBackground>(w_, h_, filename); // set background
-        background_ = [this](auto renderer, auto translator){
+        image_background_ = std::make_shared<ImageBackground>(w_, h_, std::move(filename)); // set background
+        background_ = [this](auto renderer, auto const &translator){
                     auto &bg {*image_background_}; // bg initialized from reference of image_background_
-                    bg(renderer,translator);
+                    bg(renderer, translator);
         };
         // std::bind(&ImageBackground::operator(), image_background_, std::placeholders::_1, std::placeholders::_2); // bind operator to
     }                   // image background ??? why??
@@ -59,7 +60,7 @@ struct Plane : public std::list<std::shared_ptr<TRenderable>> // inherit from li
     template <typename TColor>
     void background(TColor const &color) // background by color
     {
-        background_ = [color, this](TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> translator) {
+        background_ = [color, this](TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator) {
             typename TRenderer::RectType rc{0, 0, w_, h_};
             rc = translator(rc);
             renderer->SetDrawColor(color);
@@ -68,7 +69,7 @@ struct Plane : public std::list<std::shared_ptr<TRenderable>> // inherit from li
     }
 
     // camera will call this
-    void render(TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> translator) const
+    void render(TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator) const
     {
         // render background
         if (background_)
@@ -87,5 +88,5 @@ struct Plane : public std::list<std::shared_ptr<TRenderable>> // inherit from li
 private:
     int w_, h_;
     std::shared_ptr<ImageBackground> image_background_;
-    std::function<void(TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> translator)> background_;
+    std::function<void(TRenderer *renderer, std::function<typename TRenderer::RectType(typename TRenderer::RectType)> const &translator)> background_;
 };

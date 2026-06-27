@@ -1,6 +1,7 @@
 #include <functional>
 #include <memory>
 #include <map>
+#include <utility>
 
 template <typename TCharacter, typename SceneType, typename TMove>
 class Prosecution
@@ -15,7 +16,7 @@ private:
 
 public:
     Prosecution(TCharacter &subject, const TCharacter &target, bool isEndOnCollision, std::map<HDirection, std::function<void()>> setupDirections)
-    : subject_{subject}, target_{target}, isEndOnCollision_{isEndOnCollision}, setupDirections_{setupDirections} // initialization list, when we have reference we have to use it (references need to be initialize)
+    : subject_{subject}, target_{target}, isEndOnCollision_{isEndOnCollision}, setupDirections_{std::move(setupDirections)} // initialization list, when we have reference we have to use it (references need to be initialize)
     {
         // "duck typing": "if it looks like a duck, sounds like a duck, walks like a duck, then it's a duck"
         subject_.addUpdate([this](auto *scene) { return UpdateSubject(scene); });

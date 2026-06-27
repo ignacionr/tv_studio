@@ -2,8 +2,9 @@
 #include "units.h"
 #include <functional>
 #include <memory>
+#include <cstdint>
 
-enum HDirection
+enum HDirection : std::uint8_t
 {
     left,
     right
@@ -60,7 +61,7 @@ private:
     }
 };
 
-enum VDirection
+enum VDirection : std::uint8_t
 {
     up,
     down
